@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>seminarioGoLang2021.com: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">seminarioGoLang2021.com/main.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "bytes"
+        "errors"
+        "strconv"
+
+        "seminarioGoLang2021.com/model"
+)
+
+func IsChar(charByte []byte) bool <span class="cov8" title="1">{
+        return bytes.ContainsAny(charByte, "ABCDEFGHIJKLMNOPKRSTUVWXYZabcdefghijklmnñopqrstuvwxyz")
+}</span>
+func IsNumber(charByte []byte) bool <span class="cov8" title="1">{
+        return bytes.ContainsAny(charByte, "0123456789")
+}</span>
+func IsAllString(s string) bool <span class="cov8" title="1">{
+        ss := []byte(s)
+        Ischar := true
+        arrayCharB := bytes.Split(ss, []byte(""))
+        for i := 0; i &lt; len(ss); i++ </span><span class="cov8" title="1">{
+                if !IsChar(arrayCharB[i]) </span><span class="cov8" title="1">{
+                        Ischar = false
+                        break</span>
+                }
+        }
+        <span class="cov8" title="1">return Ischar</span>
+}
+
+func IsAllNumber(s string) bool <span class="cov8" title="1">{
+        ss := []byte(s)
+        Isnumber := true
+        arrayNumberB := bytes.Split(ss, []byte(""))
+        for i := 0; i &lt; len(ss); i++ </span><span class="cov8" title="1">{
+                if !IsNumber(arrayNumberB[i]) </span><span class="cov8" title="1">{
+                        Isnumber = false
+                        break</span>
+                }
+        }
+        <span class="cov8" title="1">return Isnumber</span>
+}
+func separateString(input []byte) (model.Result, error) <span class="cov8" title="1">{
+        data := bytes.Split(input, []byte(""))
+        var Value string
+        var s string
+
+        Type := string(data[0]) + string(data[1])
+
+        for i := 4; i &lt; len(data); i++ </span><span class="cov8" title="1">{
+                Value += string(data[i])
+        }</span>
+
+        <span class="cov8" title="1">if bytes.Equal(data[2], []byte("0")) </span><span class="cov8" title="1">{
+                s = string(data[3])
+        }</span> else<span class="cov8" title="1"> {
+                s = string(data[2]) + string(data[3])
+        }</span>
+        <span class="cov8" title="1">Length, err := strconv.Atoi(s)
+        if err != nil </span><span class="cov8" title="1">{
+                Result := model.NewResult("", "", 0)
+                return Result, errors.New("Lenght distinto a numeros")
+        }</span> else<span class="cov8" title="1"> {
+                Result := model.NewResult(Type, Value, Length)
+                return Result, nil
+        }</span>
+}
+
+func rightLenght(length int, value string) bool <span class="cov8" title="1">{
+        return length == len(value)
+}</span>
+
+func setValuesResult(r *model.Result) <span class="cov8" title="1">{
+        r.Length = 0
+        r.Type = ""
+        r.Value = ""
+}</span>
+
+func ParseString(input []byte) (model.Result, error) <span class="cov8" title="1">{
+        result, err := separateString(input)
+        if err != nil </span><span class="cov8" title="1">{
+                setValuesResult(&amp;result)
+                return result, errors.New("Los datos no son coherentes")
+        }</span>
+        <span class="cov8" title="1">if rightLenght(result.Length, result.Value) </span><span class="cov8" title="1">{
+                if result.Type == "TX" </span><span class="cov8" title="1">{
+                        if IsAllString(result.Value) </span><span class="cov8" title="1">{
+                                return result, nil
+                        }</span> else<span class="cov8" title="1"> {
+                                setValuesResult(&amp;result)
+                                return result, errors.New("Los valores no son todas letras")
+                        }</span>
+                } else<span class="cov8" title="1"> if result.Type == "NN" </span><span class="cov8" title="1">{
+                        if IsAllNumber(result.Value) </span><span class="cov8" title="1">{
+                                return result, nil
+                        }</span> else<span class="cov8" title="1"> {
+                                setValuesResult(&amp;result)
+                                return result, errors.New("Los valores no son todos numeros")
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        setValuesResult(&amp;result)
+                        return result, errors.New("El typo de valores no es valido")
+                }</span>
+        } else<span class="cov8" title="1"> {
+                setValuesResult(&amp;result)
+                return result, errors.New("El lenght de los valores no coincide")
+        }</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
