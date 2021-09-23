@@ -19,10 +19,22 @@ func TestParser(t *testing.T) {
 		{"TX06ABCDE", false, "", "", 0},
 		{"NN04000A", false, "", "", 0},
 		{"TX022B", false, "", "", 0},
-		{"TX0%2B", false, "", "", 0},
+		{"NN0%2B", false, "", "", 0},
 		{"TG022B", false, "", "", 0},
 		{"TX02%B", false, "", "", 0},
 		{"T)02%B", false, "", "", 0},
+		{"TX00", true, "TX", "", 0},
+		{"NN00", true, "NN", "", 0},
+		{"NN0", false, "", "", 0},
+		{"TX0", false, "", "", 0},
+		{"NN02", false, "", "", 0},
+		{"TX02", false, "", "", 0},
+		{"Ts02", false, "", "", 0},
+		{"NN2", false, "", "", 0},
+		{"NN", false, "", "", 0},
+		{"TX", false, "", "", 0},
+		{"x", false, "", "", 0},
+		{"", false, "", "", 0},
 	}
 	for _, testData := range cases {
 		r, err := ParseString([]byte(testData.Input))

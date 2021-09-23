@@ -111,20 +111,22 @@ func IsAllNumber(s string) bool <span class="cov8" title="1">{
         <span class="cov8" title="1">return Isnumber</span>
 }
 func separateString(input []byte) (model.Result, error) <span class="cov8" title="1">{
-        data := bytes.Split(input, []byte(""))
+        //data := bytes.Split(input, []byte(""))
         var Value string
         var s string
 
-        Type := string(data[0]) + string(data[1])
+        Type := string(input[0]) + string(input[1])
 
-        for i := 4; i &lt; len(data); i++ </span><span class="cov8" title="1">{
-                Value += string(data[i])
-        }</span>
+        if len(input) &gt;= 4 </span><span class="cov8" title="1">{
+                for i := 4; i &lt; len(input); i++ </span><span class="cov8" title="1">{
+                        Value += string(input[i])
+                }</span>
+        }
 
-        <span class="cov8" title="1">if bytes.Equal(data[2], []byte("0")) </span><span class="cov8" title="1">{
-                s = string(data[3])
+        <span class="cov8" title="1">if bytes.Equal(bytes.Split(input, []byte(""))[2], []byte("0")) </span><span class="cov8" title="1">{
+                s = string(input[3])
         }</span> else<span class="cov8" title="1"> {
-                s = string(data[2]) + string(data[3])
+                s = string(input[2]) + string(input[3])
         }</span>
         <span class="cov8" title="1">Length, err := strconv.Atoi(s)
         if err != nil </span><span class="cov8" title="1">{
@@ -146,34 +148,54 @@ func setValuesResult(r *model.Result) <span class="cov8" title="1">{
         r.Value = ""
 }</span>
 
-func ParseString(input []byte) (model.Result, error) <span class="cov8" title="1">{
-        result, err := separateString(input)
-        if err != nil </span><span class="cov8" title="1">{
-                setValuesResult(&amp;result)
-                return result, errors.New("Los datos no son coherentes")
+func checkInputStatus(input []byte) bool <span class="cov8" title="1">{
+        if len(input) &gt; 3 </span><span class="cov8" title="1">{
+                return true
+        }</span> else<span class="cov8" title="1"> {
+                return false
         }</span>
-        <span class="cov8" title="1">if rightLenght(result.Length, result.Value) </span><span class="cov8" title="1">{
-                if result.Type == "TX" </span><span class="cov8" title="1">{
-                        if IsAllString(result.Value) </span><span class="cov8" title="1">{
-                                return result, nil
-                        }</span> else<span class="cov8" title="1"> {
+}
+
+func ParseString(input []byte) (model.Result, error) <span class="cov8" title="1">{
+        if checkInputStatus(input) </span><span class="cov8" title="1">{
+                result, err := separateString(input)
+                if err != nil </span><span class="cov8" title="1">{
+                        setValuesResult(&amp;result)
+                        return result, errors.New("Los datos no son coherentes")
+                }</span>
+                <span class="cov8" title="1">if rightLenght(result.Length, result.Value) </span><span class="cov8" title="1">{
+                        if result.Type == "TX" </span><span class="cov8" title="1">{
+                                if len(result.Value) &gt; 0 </span><span class="cov8" title="1">{
+                                        if IsAllString(result.Value) </span><span class="cov8" title="1">{
+                                                return result, nil
+                                        }</span> else<span class="cov8" title="1"> {
+                                                setValuesResult(&amp;result)
+                                                return result, errors.New("Los valores no son todas letras")
+                                        }</span>
+                                } else<span class="cov8" title="1"> {
+                                        return result, nil
+                                }</span>
+                        } else<span class="cov8" title="1"> if result.Type == "NN" </span><span class="cov8" title="1">{
+                                if len(result.Value) &gt; 0 </span><span class="cov8" title="1">{
+                                        if IsAllNumber(result.Value) </span><span class="cov8" title="1">{
+                                                return result, nil
+                                        }</span> else<span class="cov8" title="1"> {
+                                                setValuesResult(&amp;result)
+                                                return result, errors.New("Los valores no son todos numeros")
+                                        }</span>
+                                } else<span class="cov8" title="1"> {
+                                        return result, nil
+                                }</span>
+                        } else<span class="cov8" title="1"> {
                                 setValuesResult(&amp;result)
-                                return result, errors.New("Los valores no son todas letras")
-                        }</span>
-                } else<span class="cov8" title="1"> if result.Type == "NN" </span><span class="cov8" title="1">{
-                        if IsAllNumber(result.Value) </span><span class="cov8" title="1">{
-                                return result, nil
-                        }</span> else<span class="cov8" title="1"> {
-                                setValuesResult(&amp;result)
-                                return result, errors.New("Los valores no son todos numeros")
+                                return result, errors.New("El typo de valores no es valido")
                         }</span>
                 } else<span class="cov8" title="1"> {
                         setValuesResult(&amp;result)
-                        return result, errors.New("El typo de valores no es valido")
+                        return result, errors.New("El lenght de los valores no coincide")
                 }</span>
         } else<span class="cov8" title="1"> {
-                setValuesResult(&amp;result)
-                return result, errors.New("El lenght de los valores no coincide")
+                return model.NewResult("", "", 0), errors.New("Los datos no son coherentes")
         }</span>
 }
 </pre>

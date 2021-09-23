@@ -18,7 +18,7 @@ func IsAllString(s string) bool {
 	ss := []byte(s)
 	Ischar := true
 	arrayCharB := bytes.Split(ss, []byte(""))
-	for i := 0; i < len(ss); i++ {
+	for i := 0; i < len(s); i++ {
 		if !IsChar(arrayCharB[i]) {
 			Ischar = false
 			break
@@ -46,8 +46,10 @@ func separateString(input []byte) (model.Result, error) {
 
 	Type := string(data[0]) + string(data[1])
 
-	for i := 4; i < len(data); i++ {
-		Value += string(data[i])
+	if len(data) >= 4 {
+		for i := 4; i < len(data); i++ {
+			Value += string(data[i])
+		}
 	}
 
 	if bytes.Equal(data[2], []byte("0")) {
@@ -75,33 +77,53 @@ func setValuesResult(r *model.Result) {
 	r.Value = ""
 }
 
-func ParseString(input []byte) (model.Result, error) {
-	result, err := separateString(input)
-	if err != nil {
-		setValuesResult(&result)
-		return result, errors.New("Los datos no son coherentes")
+func checkInputStatus(input []byte) bool {
+	if len(input) > 3 {
+		return true
+	} else {
+		return false
 	}
-	if rightLenght(result.Length, result.Value) {
-		if result.Type == "TX" {
-			if IsAllString(result.Value) {
-				return result, nil
+}
+
+func ParseString(input []byte) (model.Result, error) {
+	if checkInputStatus(input) {
+		result, err := separateString(input)
+		if err != nil {
+			setValuesResult(&result)
+			return result, errors.New("Los datos no son coherentes")
+		}
+		if rightLenght(result.Length, result.Value) {
+			if result.Type == "TX" {
+				if len(result.Value) > 0 {
+					if IsAllString(result.Value) {
+						return result, nil
+					} else {
+						setValuesResult(&result)
+						return result, errors.New("Los valores no son todas letras")
+					}
+				} else {
+					return result, nil
+				}
+			} else if result.Type == "NN" {
+				if len(result.Value) > 0 {
+					if IsAllNumber(result.Value) {
+						return result, nil
+					} else {
+						setValuesResult(&result)
+						return result, errors.New("Los valores no son todos numeros")
+					}
+				} else {
+					return result, nil
+				}
 			} else {
 				setValuesResult(&result)
-				return result, errors.New("Los valores no son todas letras")
-			}
-		} else if result.Type == "NN" {
-			if IsAllNumber(result.Value) {
-				return result, nil
-			} else {
-				setValuesResult(&result)
-				return result, errors.New("Los valores no son todos numeros")
+				return result, errors.New("El typo de valores no es valido")
 			}
 		} else {
 			setValuesResult(&result)
-			return result, errors.New("El typo de valores no es valido")
+			return result, errors.New("El lenght de los valores no coincide")
 		}
 	} else {
-		setValuesResult(&result)
-		return result, errors.New("El lenght de los valores no coincide")
+		return model.NewResult("", "", 0), errors.New("Los datos no son coherentes")
 	}
 }
